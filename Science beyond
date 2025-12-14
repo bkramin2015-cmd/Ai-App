@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Science Beyond</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Science Beyond</h1>
+      <button id="langToggle">English</button>
+    </header>
+    <main id="chat">
+      <!-- فقاعة المحادثة تظهر هنا -->
+    </main>
+    <footer>
+      <input type="text" id="userInput" placeholder="اكتب سؤالك هنا...">
+      <button id="sendBtn">✍️</button>
+      <button id="voiceBtn">🎤</button>
+      <input type="file" id="imageUpload" accept="image/*">
+    </footer>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #4b6cb7, #182848); /* أزرق × بنفسجي */
+  color: #fff;
+}
+
+.app {
+  max-width: 600px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+header {
+  padding: 10px;
+  text-align: center;
+  background-color: rgba(0,0,0,0.3);
+}
+
+header h1 {
+  margin: 0;
+}
+
+#langToggle {
+  margin-top: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.message {
+  margin: 5px 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 80%;
+}
+
+.user {
+  background-color: rgba(255,255,255,0.2);
+  align-self: flex-end;
+}
+
+.bot {
+  background-color: rgba(0,0,0,0.3);
+  align-self: flex-start;
+}
+
+footer {
+  display: flex;
+  padding: 10px;
+  gap: 5px;
+  background-color: rgba(0,0,0,0.2);
+}
+
+footer input[type=text] {
+  flex: 1;
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+}
+
+footer button {
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}const chat = document.getElementById("chat");
+const userInput = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+const voiceBtn = document.getElementById("voiceBtn");
+const langToggle = document.getElementById("langToggle");
+const imageUpload = document.getElementById("imageUpload");
+
+let language = "ar";
+
+langToggle.addEventListener("click", () => {
+  language = language === "ar" ? "en" : "ar";
+  langToggle.textContent = language === "ar" ? "English" : "العربية";
+  addBotMessage(language === "ar" ? "تم التبديل إلى العربية" : "Switched to English");
+});
+
+sendBtn.addEventListener("click", () => {
+  const text = userInput.value.trim();
+  if(text) {
+    addUserMessage(text);
+    processInput(text);
+    userInput.value = "";
+  }
+});
+
+function addUserMessage(msg) {
+  const div = document.createElement("div");
+  div.className = "message user";
+  div.textContent = msg;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addBotMessage(msg) {
+  const div = document.createElement("div");
+  div.className = "message bot";
+  div.textContent = msg;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function processInput(msg) {
+  // هنا مكان الردود التجريبية
+  addBotMessage(language === "ar" ? "تم استلام سؤالك: " + msg : "Received your question: " + msg);
+}
+
+// تسجيل صوتي
+voiceBtn.addEventListener("click", () => {
+  if(!('webkitSpeechRecognition' in window)) {
+    alert("متصفحك لا يدعم التعرف على الصوت");
+    return;
+  }
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = language === "ar" ? "ar-SA" : "en-US";
+  recognition.start();
+  recognition.onresult = (event) => {
+    const speech = event.results[0][0].transcript;
+    userInput.value = speech;
+    sendBtn.click();
+  }
+});
+
+// رفع صورة
+imageUpload.addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if(file) {
+    addUserMessage(language === "ar" ? "صورة مرفوعة: " + file.name : "Image uploaded: " + file.name);
+    addBotMessage(language === "ar" ? "تم استلام الصورة، يمكن لاحقًا تحليلها علميًا" : "Image received, can be processed scientifically later");
+  }
+});
